@@ -4,12 +4,18 @@
 #include "framework.h"
 #include "GameLibrary.h"
 
-#define MAX_LOADSTRING 100
+#define MAX_LOADSTRING	100
 
 // Global Variables:
 HINSTANCE hInst;						// Current instance
 WCHAR szTitle[MAX_LOADSTRING];			// Title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];	// Window name
+HWND steamHandle;						// Steam button handle
+//HWND originHandle;						// Origin button handle
+//HWND battleNetHandle;					// Battle.net button handle
+//HWND uplayHandle;						// Uplay button handle
+//HWND bethesdaHandle;					// Bethesda button handle
+//HWND gogHandle;							// GOG button handle
 
 // Forward declarations of functions:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -122,12 +128,51 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	switch (message)
 	{
+	case WM_CREATE:
+		steamHandle		= CreateWindow(L"button", L"Steam",		 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,  10, 10, 50, 30, hWnd, (HMENU)IDC_STEAM,		hInst, NULL);
+		/*originHandle	= CreateWindow(L"button", L"Origin",	 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,  70, 10, 50, 30, hWnd, (HMENU)IDC_ORIGIN,	hInst, NULL);
+		battleNetHandle	= CreateWindow(L"button", L"Battle.net", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 130, 10, 75, 30, hWnd, (HMENU)IDC_BATTLENET, hInst, NULL);
+		uplayHandle		= CreateWindow(L"button", L"Uplay",		 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 215, 10, 50, 30, hWnd, (HMENU)IDC_UPLAY,		hInst, NULL);
+		bethesdaHandle	= CreateWindow(L"button", L"Bethesda",	 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 275, 10, 75, 30, hWnd, (HMENU)IDC_BETHESDA,	hInst, NULL);
+		gogHandle		= CreateWindow(L"button", L"GOG",		 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 360, 10, 50, 30, hWnd, (HMENU)IDC_GOG,		hInst, NULL);*/
+		EnableWindow(steamHandle, FALSE);
+		break;
+
 	case WM_COMMAND:
 		{
 			int wmId = LOWORD(wParam);
 			// Parse the menu selections:
 			switch (wmId)
 			{
+			case IDC_STEAM:
+				OutputDebugString(L"Steam pressed...\n");
+				break;
+
+			/*case IDC_ORIGIN:
+				OutputDebugString(L"Origin pressed...\n");
+				break;
+
+			case IDC_BATTLENET:
+				OutputDebugString(L"Battle.net pressed...\n");
+				break;
+
+			case IDC_UPLAY:
+				OutputDebugString(L"Uplay pressed...\n");
+				break;
+
+			case IDC_BETHESDA:
+				OutputDebugString(L"Bethesda pressed...\n");
+				break;
+
+			case IDC_GOG:
+				OutputDebugString(L"GOG pressed...\n");
+				break;*/
+
+			case IDM_LOAD:
+				OutputDebugString(L"Loading, but nothing to load.\n");
+				EnableWindow(steamHandle, TRUE);
+				break;
+
 			case IDM_ABOUT:
 				DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 				break;

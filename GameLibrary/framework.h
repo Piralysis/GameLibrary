@@ -8,6 +8,6 @@
 // Windows Header Files
 #include <Windows.h>
 // Other includes
-#include <stdlib.h>
-#include <string.h>
+#include <cstdlib>
+#include <string>
 #include <tchar.h>

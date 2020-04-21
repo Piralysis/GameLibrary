@@ -113,6 +113,7 @@ IDC_GAMELIBRARY MENU
 BEGIN
     POPUP "&File"
     BEGIN
+        MENUITEM "&Load",                       IDM_LOAD
         MENUITEM "E&xit",                       IDM_EXIT
     END
     POPUP "&Help"
