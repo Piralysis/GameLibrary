@@ -2,7 +2,7 @@
 // compile with: /D_UNICODE /DUNICODE /DWIN32 /D_WINDOWS /c
 
 #include "framework.h"
-#include "GameLibrary.h"
+#include "resource.h"
 
 #define MAX_LOADSTRING	100
 
@@ -10,12 +10,21 @@
 HINSTANCE hInst;						// Current instance
 WCHAR szTitle[MAX_LOADSTRING];			// Title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];	// Window name
-HWND steamHandle;						// Steam button handle
-//HWND originHandle;						// Origin button handle
-//HWND battleNetHandle;					// Battle.net button handle
-//HWND uplayHandle;						// Uplay button handle
-//HWND bethesdaHandle;					// Bethesda button handle
-//HWND gogHandle;							// GOG button handle
+HWND steamHwnd;							// Steam button handle
+HWND originHwnd;						// Origin button handle
+HWND battleNetHwnd;						// Battle.net button handle
+HWND uplayHwnd;							// Uplay button handle
+HWND bethesdaHwnd;						// Bethesda button handle
+HWND gogHwnd;							// GOG button handle
+HWND sbHwnd;							// Status Bar handle
+
+// File location defaults:
+std::filesystem::path steamPath		= "C:/Program Files (x86)/Steam/Steam.dll";
+std::filesystem::path originPath	= "C:/Program Files (x86)/Origin/Origin.exe";
+std::filesystem::path battleNetPath = "C:/Program Files (x86)/Battle.net/Battle.net Launcher.exe";
+std::filesystem::path uplayPath		= "C:/Program Files (x86)/Ubisoft/Ubisoft Game Launcher/Uplay.exe";
+std::filesystem::path bethesdaPath	= "C:/Program Files (x86)/Bethesda.net Launcher/BethesdaNetUpdater.exe";
+std::filesystem::path gogPath		= "C:/Program Files (x86)/GOG Galaxy/GalaxyClient.exe";
 
 // Forward declarations of functions:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -101,8 +110,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
 	hInst = hInstance;
 
-	// HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, nullptr, nullptr, hInstance, nullptr);
-	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 500, 500, nullptr, nullptr, hInstance, nullptr);
+	HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, 436, 500, nullptr, nullptr, hInstance, nullptr);
 
 	if (!hWnd)
 	{
@@ -129,13 +137,28 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_CREATE:
-		steamHandle		= CreateWindow(L"button", L"Steam",		 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,  10, 10, 50, 30, hWnd, (HMENU)IDC_STEAM,		hInst, NULL);
-		/*originHandle	= CreateWindow(L"button", L"Origin",	 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,  70, 10, 50, 30, hWnd, (HMENU)IDC_ORIGIN,	hInst, NULL);
-		battleNetHandle	= CreateWindow(L"button", L"Battle.net", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 130, 10, 75, 30, hWnd, (HMENU)IDC_BATTLENET, hInst, NULL);
-		uplayHandle		= CreateWindow(L"button", L"Uplay",		 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 215, 10, 50, 30, hWnd, (HMENU)IDC_UPLAY,		hInst, NULL);
-		bethesdaHandle	= CreateWindow(L"button", L"Bethesda",	 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 275, 10, 75, 30, hWnd, (HMENU)IDC_BETHESDA,	hInst, NULL);
-		gogHandle		= CreateWindow(L"button", L"GOG",		 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 360, 10, 50, 30, hWnd, (HMENU)IDC_GOG,		hInst, NULL);*/
-		EnableWindow(steamHandle, FALSE);
+		// Create the buttons
+		steamHwnd		= CreateWindow(L"button", L"Steam",		 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,  10, 10, 50, 30, hWnd, (HMENU)IDC_STEAM,		hInst, NULL);
+		originHwnd		= CreateWindow(L"button", L"Origin",	 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON,  70, 10, 50, 30, hWnd, (HMENU)IDC_ORIGIN,	hInst, NULL);
+		battleNetHwnd	= CreateWindow(L"button", L"Battle.net", WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 130, 10, 75, 30, hWnd, (HMENU)IDC_BATTLENET, hInst, NULL);
+		uplayHwnd		= CreateWindow(L"button", L"Uplay",		 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 215, 10, 50, 30, hWnd, (HMENU)IDC_UPLAY,		hInst, NULL);
+		bethesdaHwnd	= CreateWindow(L"button", L"Bethesda",	 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 275, 10, 75, 30, hWnd, (HMENU)IDC_BETHESDA,	hInst, NULL);
+		gogHwnd			= CreateWindow(L"button", L"GOG",		 WS_CHILD | WS_VISIBLE | BS_DEFPUSHBUTTON, 360, 10, 50, 30, hWnd, (HMENU)IDC_GOG,		hInst, NULL);
+		// Set all buttons to disabled until locations have been confirmed
+		EnableWindow(steamHwnd, FALSE);
+		EnableWindow(originHwnd, FALSE);
+		EnableWindow(battleNetHwnd, FALSE);
+		EnableWindow(uplayHwnd, FALSE);
+		EnableWindow(bethesdaHwnd, FALSE);
+		EnableWindow(gogHwnd, FALSE);
+
+		// Create the status bar
+		sbHwnd			= CreateWindow(STATUSCLASSNAME, NULL,	 WS_CHILD | WS_VISIBLE | SBARS_SIZEGRIP,     0,  0,  0,  0, hWnd, (HMENU)IDC_STATUSBAR, hInst, NULL);
+		// Send default text to the status bar
+		SendMessage(sbHwnd, SB_SETTEXT, 0, (LPARAM)TEXT("File->Load to get install info..."));
+
+		// TODO: Create the ListView
+
 		break;
 
 	case WM_COMMAND:
@@ -146,31 +169,60 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 			case IDC_STEAM:
 				OutputDebugString(L"Steam pressed...\n");
+				// This does nothing (for now)
 				break;
 
-			/*case IDC_ORIGIN:
+			case IDC_ORIGIN:
 				OutputDebugString(L"Origin pressed...\n");
+				// This does nothing (for now)
 				break;
 
 			case IDC_BATTLENET:
 				OutputDebugString(L"Battle.net pressed...\n");
+				// This does nothing (for now)
 				break;
 
 			case IDC_UPLAY:
 				OutputDebugString(L"Uplay pressed...\n");
+				// This does nothing (for now)
 				break;
 
 			case IDC_BETHESDA:
 				OutputDebugString(L"Bethesda pressed...\n");
+				// This does nothing (for now)
 				break;
 
 			case IDC_GOG:
 				OutputDebugString(L"GOG pressed...\n");
-				break;*/
+				// This does nothing (for now)
+				break;
 
 			case IDM_LOAD:
-				OutputDebugString(L"Loading, but nothing to load.\n");
-				EnableWindow(steamHandle, TRUE);
+				OutputDebugString(L"Beginning process...\n");
+				if (std::filesystem::exists(steamPath)) {
+					EnableWindow(steamHwnd, TRUE);
+					OutputDebugString(L"  Steam loaded\n");
+				}
+				if (std::filesystem::exists(originPath)) {
+					EnableWindow(originHwnd, TRUE);
+					OutputDebugString(L"  Origin loaded\n");
+				}
+				if (std::filesystem::exists(battleNetPath)) {
+					EnableWindow(battleNetHwnd, TRUE);
+					OutputDebugString(L"  Battle.net loaded\n");
+				}
+				if (std::filesystem::exists(uplayPath)) {
+					EnableWindow(uplayHwnd, TRUE);
+					OutputDebugString(L"  Uplay loaded\n");
+				}
+				if (std::filesystem::exists(bethesdaPath)) {
+					EnableWindow(bethesdaHwnd, TRUE);
+					OutputDebugString(L"  Bethesda loaded\n");
+				}
+				if (std::filesystem::exists(gogPath)) {
+					EnableWindow(gogHwnd, TRUE);
+					OutputDebugString(L"  GOG loaded\n");
+				}
 				break;
 
 			case IDM_ABOUT:
@@ -194,6 +246,20 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			// TODO: Add any drawing code that uses hdc here...
 			EndPaint(hWnd, &ps);
 		}
+		break;
+
+	case WM_GETMINMAXINFO:
+	{
+		LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+		lpMMI->ptMinTrackSize.x = 436;
+		lpMMI->ptMinTrackSize.y = 500;
+		lpMMI->ptMaxTrackSize.x = 436;
+		lpMMI->ptMaxTrackSize.y = 500;
+	}
+	break;
+
+	case WM_SIZE:
+		SendMessage(sbHwnd, WM_SIZE, 0, 0);
 		break;
 
 	case WM_DESTROY:

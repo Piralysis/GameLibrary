@@ -13,6 +13,7 @@
 #define IDC_UPLAY						1004
 #define IDC_BETHESDA					1005
 #define IDC_GOG							1006
+#define IDC_STATUSBAR					1007
 #define IDM_ABOUT                       40001
 #define ID_FILE_EXIT                    40003
 #define ID_HELP_                        40004
@@ -26,7 +27,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        108
 #define _APS_NEXT_COMMAND_VALUE         40008
-#define _APS_NEXT_CONTROL_VALUE         1007
+#define _APS_NEXT_CONTROL_VALUE         1008
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

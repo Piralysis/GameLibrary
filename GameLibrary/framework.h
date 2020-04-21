@@ -11,3 +11,5 @@
 #include <cstdlib>
 #include <string>
 #include <tchar.h>
+#include <filesystem>
+#include <CommCtrl.h>
